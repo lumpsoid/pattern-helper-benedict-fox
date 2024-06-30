@@ -1,6 +1,9 @@
 {
-	"private": true,
 	"type": "module",
+	"name": "numeric-door-benedict-fox",
+  "version": "0.1.0",
+	"private": true,
+	"homepage": "https://lumpsoid.github.io/numeric-door-benedict-fox/",
 	"scripts": {
 		"dev": "vite",
 		"build": "vite build",
