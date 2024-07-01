@@ -1,6 +1,6 @@
 # Numeric door puzzle Benedict Fox
 
-Simple mini app for fast numeric door puzzle solver.
+Simple mini app for fast numeric door puzzle solver. You can access it here - https://lumpsoid.github.io/numeric-door-benedict-fox/
 
 Created just for the fun of coding.
 
