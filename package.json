@@ -1,9 +1,8 @@
 {
-	"type": "module",
-	"name": "numeric-door-benedict-fox",
-  "version": "0.1.0",
+	"name": "pattern-helper-benedict-fox",
+	"version": "0.1.0",
 	"private": true,
-	"homepage": "https://lumpsoid.github.io/numeric-door-benedict-fox/",
+	"homepage": "https://lumpsoid.github.io/pattern-helper-benedict-fox/",
 	"scripts": {
 		"dev": "vite",
 		"build": "vite build",
@@ -14,7 +13,8 @@
 	"dependencies": {
 		"preact": "^10.20.0",
 		"preact-iso": "^2.6.3",
-		"preact-render-to-string": "^6.5.5"
+		"preact-render-to-string": "^6.5.5",
+		"preact-router": "^4.1.2"
 	},
 	"devDependencies": {
 		"@preact/preset-vite": "^2.8.2",
