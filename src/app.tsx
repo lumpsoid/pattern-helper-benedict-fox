@@ -20,12 +20,26 @@ const App = () =>
 		"div",
 		{ className: "app" },
 		h(
-			"h1",
-			null,
-			"Numeric door puzzle"),
-		h(
 			"div",
 			{ className: "content" },
+			h(
+				"div",
+				null,
+				h(
+					"h1",
+					{ style: "margin-bottom: 0px;" },
+					"Pattern helper",
+				),
+				h(
+					"p",
+					{ style: "margin-top: 0px;" },
+					'for The Last Case of Benedict Fox',
+				),
+			),
+			h(
+				Number,
+				{ grid: grid, setGrid: setGrid },
+			),
 			h(
 				Grid,
 				{
@@ -33,10 +47,6 @@ const App = () =>
 					callback: setGrid,
 				},
 			),
-			h(
-				Number,
-				{ grid: grid },
-			)
 		),
 	);
 };
