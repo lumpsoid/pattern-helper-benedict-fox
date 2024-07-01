@@ -10,10 +10,7 @@ const App = () =>
 	const [grid, setGrid] = useState(
 		Array.from(
 			{ length: 7 },
-			() => Array.from(
-				{ length: 5 },
-				() => false,
-			),
+			() => [false, false, true, false, false],
 		),
 	);
 	return h(
