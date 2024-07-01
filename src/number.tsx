@@ -1,18 +1,24 @@
 import { h } from 'preact';
 import { useState } from 'preact/hooks';
 
+const _pipe = (a, b) => (arg) => b(a(arg));
+const pipe = (...ops) => ops.reduce(_pipe);
+
 interface NumberProps
 {
   grid: boolean[][];
+  setGrid: (grid: boolean[][]) => void;
 };
 
-const Number = ({ grid }: NumberProps) =>
+const Number = ({ grid, setGrid }: NumberProps) =>
 {
-  const [numberResult, setNumberResult] = useState<string>("0000");
+  const [numberPattern, setPatternNumber] = useState<string>("");
+
+  const getNumber = () => numberPattern;
   /**
    * Object to store the information for decrypting visual pattern into a number following the game logic
    */
-  const elements = {
+  const elements: { [key: number]: { [key: string]: number } } = {
     // 1 quadrant
     0: {
       "01": 1,
@@ -139,7 +145,7 @@ const Number = ({ grid }: NumberProps) =>
   /**
    * Function to compose the number from the grid active cells
   */
-  const composeNumber = () =>
+  const parseGridToNumber = () =>
   {
     dropCentralColumnAndRow(grid)
       .reduce(separateIntoTwoGroups, [[], []])
@@ -148,20 +154,133 @@ const Number = ({ grid }: NumberProps) =>
       .flatMap(getNumberString)
       .map(decryptPattern)
       .forEach(insertNumber)
-    setNumberResult(number.join(''));
+    setPatternNumber(number.join(''));
   };
+
+  const quadrantFromString = (quadrant: string): boolean[] =>
+  {
+    const quadrantArray = [false, false, false, false, false, false];
+    quadrant.split("")
+      .forEach((value) => quadrantArray[value] = true);
+    return quadrantArray;
+  }
+
+  const reduceIntoArraysBy2 = (quadrant: boolean[]): boolean[][] =>
+  {
+    return quadrant.reduce((result: any[][], item: any, index: number) =>
+    {
+      const chunkIndex = Math.floor(index / 2);
+      if (!result[chunkIndex])
+      {
+        result[chunkIndex] = []; // Initialize inner array if it doesn't exist
+      }
+      result[chunkIndex].push(item);
+      return result;
+    },
+      []);
+  }
+
+  const splitEachSymbol = (str: string) => str.split("");
+
+  const arrangeNumber = (layout: number[]) => (number: string[]) =>
+  {
+    const rearranged = [0, 0, 0, 0];
+    number.forEach((value, index) => rearranged[layout[index]] = parseInt(value));
+    return rearranged;
+  }
+
+  const getKeyByValue = (mapObject: any) => (value: any, index: number) =>
+  {
+    return Object.entries(mapObject[index]).find((entrie) => entrie[1] === value)[0]
+  }
+
+  const getPatternByDigit = getKeyByValue(elements)
+
+  const mapDigitsToQuadrantPattern = (digits: number[]): string[] =>
+  {
+    return digits.map(getPatternByDigit)
+  }
+
+  const mapQuadrantFromString = (stringArray: string[]): boolean[][] => stringArray.map(quadrantFromString);
+
+  const mapReduceArrayBy2 = (inputArray: boolean[][]): boolean[][][] => inputArray.map(reduceIntoArraysBy2);
+
+  const reduceIntoTwoGroups = (inputArray) => inputArray.reduce(separateIntoTwoGroups, [[], []])
+
+  const composeGridFromArrays = (inputArray: boolean[][][]) =>
+  {
+    let gridTemp = [];
+    for (let group = 0; group <= 1; group++)
+    {
+      for (let line = 0; line <= 2; line++)
+      {
+        let lineArray = [];
+        // 0,1 because we splited 4 quadrants into 2 groups
+        for (let quadrant = 0; quadrant <= 1; quadrant++)
+        {
+          lineArray.push(inputArray[group][quadrant][line])
+        }
+        gridTemp.push(lineArray.flat())
+      }
+    }
+    return gridTemp;
+  }
+
+  const insertCentralRowAndColumns = (grid: boolean[][]): boolean[][] =>
+  {
+    // Clone the grid to avoid mutating the original array
+    const restoredGrid = grid.map(row => [...row]);
+
+    // Insert a new row at index 3 (fourth row)
+    const newEmptyRow = Array(restoredGrid[0].length).fill(false); // Create a new row with false values
+    restoredGrid.splice(3, 0, newEmptyRow);
+
+    // Insert a new column at index 2 (third column)
+    for (let i = 0; i < restoredGrid.length; i++)
+    {
+      restoredGrid[i].splice(2, 0, true); // Insert false (or default value) for each row
+    }
+
+    return restoredGrid;
+  };
+
+
+  const parseNumberToGrid = pipe(
+    getNumber,
+    splitEachSymbol,
+    arrangeNumber([1, 3, 0, 2]),
+    mapDigitsToQuadrantPattern,
+    mapQuadrantFromString,
+    mapReduceArrayBy2,
+    reduceIntoTwoGroups,
+    composeGridFromArrays,
+    insertCentralRowAndColumns,
+    setGrid,
+  );
+
+  const handleInputNumber = (event) => setPatternNumber(event.target.value)
+
   return h(
     "div",
-    {className: "number"},
+    { className: "number" },
     h(
       "button",
-      { onClick: composeNumber },
-      "Get number",
+      { onClick: parseGridToNumber },
+      "To number",
     ),
     h(
-      "p",
-      null,
-      numberResult,
+      "input",
+      {
+        type: "number",
+        style: "width: 140px",
+        value: numberPattern,
+        onInput: handleInputNumber
+      },
+    ),
+    h(
+      "button",
+      { onClick: parseNumberToGrid },
+      "To pattern",
     ),
   );
 }
